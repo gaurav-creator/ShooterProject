@@ -8,7 +8,7 @@ public class ShooterProject : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore","UMG","Slate","SlateCore","ALSV4_CPP" });
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore","UMG","Slate","SlateCore","ALSV4_CPP"});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {"ALSV4_CPP" });
 
