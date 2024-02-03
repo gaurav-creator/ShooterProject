@@ -1,6 +1,7 @@
 
 #include "Weapon.h"
 
+#include "Camera/CameraComponent.h"
 #include "Character/ALSCharacter.h"
 #include "Character/ALSPlayerController.h"
 #include "Components/SphereComponent.h"
@@ -31,6 +32,10 @@ AWeapon::AWeapon()
 
 	PickupWidget = CreateDefaultSubobject<UWidgetComponent>("PickupWidget");
 	PickupWidget->SetupAttachment(GetRootComponent());
+
+	CameraComponent = CreateDefaultSubobject<UCameraComponent>("Camera");
+	CameraComponent->SetupAttachment(GetRootComponent(),FName("ADS"));
+	
 }
 
 void AWeapon::BeginPlay()

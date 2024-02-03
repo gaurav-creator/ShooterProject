@@ -77,7 +77,7 @@ public:
 
 	void SetOverlappingWeapon(AWeapon* Weapon);
 
-	virtual FVector GetFirstPersonCameraTargetADS() override;
+	/*virtual FVector GetFirstPersonCameraTargetADS() override;*/
 	
 	void Elim();
 	

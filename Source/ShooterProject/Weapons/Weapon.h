@@ -6,6 +6,7 @@
 #include "WeaponTypes.h"
 #include "GameFramework/Actor.h"
 #include "Weapon.generated.h"
+class UCameraComponent;
 class AALSCharacter;
 
 UENUM(BlueprintType)
@@ -55,6 +56,10 @@ public:
 	class USoundCue* EquipSound;
 	
 protected:
+	
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly)
+	UCameraComponent* CameraComponent;
+	
 	virtual void BeginPlay() override;
 
 	UFUNCTION()

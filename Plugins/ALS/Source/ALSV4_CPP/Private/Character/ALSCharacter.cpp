@@ -387,7 +387,7 @@ ECombatState AALSCharacter::GetCombatState() const
 	return CombatComponent->CombatState;
 }
 
-FVector AALSCharacter::GetFirstPersonCameraTargetADS()
+/*FVector AALSCharacter::GetFirstPersonCameraTargetADS()
 {
 	if (CombatComponent && CombatComponent->EquippedWeapon)
 	{
@@ -395,7 +395,7 @@ FVector AALSCharacter::GetFirstPersonCameraTargetADS()
 	}
 
 	return {};
-}
+}*/
 
 void AALSCharacter::DeathRagDoll_Implementation(FVector Location, FVector Impulse, float ImpulseMultiplier,
 	FName HitBone)

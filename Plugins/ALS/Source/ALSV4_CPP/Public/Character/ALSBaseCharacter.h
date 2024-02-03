@@ -7,9 +7,11 @@
 #include "Library/ALSCharacterStructLibrary.h"
 #include "Engine/DataTable.h"
 #include "GameFramework/Character.h"
+#include "ShooterProject/Gate.h"
 
 #include "ALSBaseCharacter.generated.h"
 
+struct FGate;
 class UCombatComponent;
 // forward declarations
 class UALSDebugComponent;
@@ -625,13 +627,36 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	UCombatComponent* CombatComponent;
 
+	UPROPERTY()
+	FGate Gate1 = FGate(false);
+
+	UPROPERTY()
+	FGate Gate2 = FGate(false);
+
+	
+
+	FTimerHandle TimerHandle;
+
+	void Gate1Open();
+
+	bool ToggleFlag;
+
+	void adsCameraDelay();
+
+	void ADSCamera();
+
+	void RevertCamera();
+
+	bool LocalBool;
+	bool& SetBoolRef = LocalBool;
+
 public:
 	bool IsWeaponEquipped() const;
 	class AWeapon* GetEquippedWeapon() const;
 	bool IsAiming() const;
 
-	UFUNCTION(BlueprintCallable, Category = "ALS|Camera System")
-	virtual FVector GetFirstPersonCameraTargetADS();
+	/*UFUNCTION(BlueprintCallable, Category = "ALS|Camera System")
+	virtual FVector GetFirstPersonCameraTargetADS();*/
 
 	FVector GetHitTarget() const;
 	

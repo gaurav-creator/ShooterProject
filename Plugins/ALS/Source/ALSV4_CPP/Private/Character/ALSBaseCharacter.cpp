@@ -14,6 +14,9 @@
 #include "Kismet/KismetMathLibrary.h"
 
 #include "TimerManager.h"
+#include "Character/ALSCharacter.h"
+#include "Character/ALSPlayerController.h"
+#include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
 #include "ShooterProject/CombatComponent/CombatComponent.h"
 #include "ShooterProject/Weapons/Weapon.h"
@@ -1291,15 +1294,101 @@ void AALSBaseCharacter::SprintAction_Implementation(bool bValue)
 
 void AALSBaseCharacter::AimAction_Implementation(bool bValue)
 {
+	
 	if (bValue)
 	{
 		// AimAction: Hold "AimAction" to enter the aiming mode, release to revert back the desired rotation mode.
-		SetRotationMode(EALSRotationMode::Aiming);
-		CombatComponent->SetAiming(true);
+		/*SetRotationMode(EALSRotationMode::Aiming);
+		CombatComponent->SetAiming(true);*/
+
+		if (OverlayState == EALSOverlayState::Rifle ||OverlayState == EALSOverlayState::PistolOneHanded || OverlayState == EALSOverlayState::PistolTwoHanded )
+		{
+			GEngine->AddOnScreenDebugMessage(-1,5.f,FColor::Blue,FString::Printf(TEXT("%hhd"),Gate1.IsOpen()));
+			
+			const FTimerDelegate TimerDelegate = FTimerDelegate::CreateUObject(this, &AALSBaseCharacter::Gate1Open);
+			
+			GetWorld()->GetTimerManager().SetTimer(TimerHandle, TimerDelegate, .2f, false);
+			
+			Gate1.Open();
+			Gate2.Open();
+		}
+		else
+		{
+			SetRotationMode(EALSRotationMode::Aiming);
+			CombatComponent->SetAiming(true);
+			//GEngine->AddOnScreenDebugMessage(-1,5.f,FColor::Red,TEXT("OverlayState =! EALSOverlayState::Rifle"));
+		}
 	}
 	else
 	{
-		if (ViewMode == EALSViewMode::ThirdPerson)
+		if (OverlayState == EALSOverlayState::Rifle ||OverlayState == EALSOverlayState::PistolOneHanded || OverlayState == EALSOverlayState::PistolTwoHanded)
+		{
+			GEngine->AddOnScreenDebugMessage(-1,5.f,FColor::Yellow,FString::Printf(TEXT("SetBoolRef: %hhd"),SetBoolRef));
+			
+			Gate1.Closed();
+			if(Gate2.IsOpen())
+			{
+				LocalBool = false;
+				SetBoolRef = LocalBool;
+
+				if (!ToggleFlag)
+				{
+					SetRotationMode(EALSRotationMode::Aiming);
+					CombatComponent->SetAiming(true);
+
+					FTimerHandle ADSTimerHandle;
+					GetWorld()->GetTimerManager().SetTimer(ADSTimerHandle, this,  &AALSBaseCharacter::adsCameraDelay, .1f, false);
+
+				}
+				else
+				{
+					RevertCamera();
+
+					if (ViewMode == EALSViewMode::ThirdPerson)
+					{
+						SetRotationMode(DesiredRotationMode);
+						CombatComponent->SetAiming(false);
+					}
+					else if (ViewMode == EALSViewMode::FirstPerson)
+					{
+						SetRotationMode(EALSRotationMode::LookingDirection);
+						CombatComponent->SetAiming(false);
+					}
+					
+				}
+				ToggleFlag = !ToggleFlag;
+				
+			}
+			if (SetBoolRef)
+			{
+				if (ViewMode == EALSViewMode::ThirdPerson)
+				{
+					SetRotationMode(DesiredRotationMode);
+					CombatComponent->SetAiming(false);
+				}
+				else if (ViewMode == EALSViewMode::FirstPerson)
+				{
+					SetRotationMode(EALSRotationMode::LookingDirection);
+					CombatComponent->SetAiming(false);
+				}
+			}
+			
+		}
+		
+		else
+		{
+			if (ViewMode == EALSViewMode::ThirdPerson)
+			{
+				SetRotationMode(DesiredRotationMode);
+				CombatComponent->SetAiming(false);
+			}
+			else if (ViewMode == EALSViewMode::FirstPerson)
+			{
+				SetRotationMode(EALSRotationMode::LookingDirection);
+				CombatComponent->SetAiming(false);
+			}
+		}
+		/*if (ViewMode == EALSViewMode::ThirdPerson)
 		{
 			SetRotationMode(DesiredRotationMode);
 			CombatComponent->SetAiming(false);
@@ -1308,7 +1397,7 @@ void AALSBaseCharacter::AimAction_Implementation(bool bValue)
 		{
 			SetRotationMode(EALSRotationMode::LookingDirection);
 			CombatComponent->SetAiming(false);
-		}
+		}*/
 	}
 }
 
@@ -1489,7 +1578,7 @@ bool AALSBaseCharacter::IsAiming() const
 	return CombatComponent && CombatComponent->bAiming;
 }
 
-FVector AALSBaseCharacter::GetFirstPersonCameraTargetADS()
+/*FVector AALSBaseCharacter::GetFirstPersonCameraTargetADS()
 {
 	if (CombatComponent && CombatComponent->EquippedWeapon)
 	{
@@ -1497,10 +1586,44 @@ FVector AALSBaseCharacter::GetFirstPersonCameraTargetADS()
 	}
 
 	return {};
-}
+}*/
 
 FVector AALSBaseCharacter::GetHitTarget() const
 {
 	if (CombatComponent == nullptr) return FVector();
 	return CombatComponent->HitTarget;
 }
+
+void AALSBaseCharacter::Gate1Open()
+{
+	if(Gate1.IsOpen())
+	{
+		Gate2.Closed();	
+		LocalBool = true;
+		SetBoolRef = LocalBool;
+
+		RevertCamera();
+		SetRotationMode(EALSRotationMode::Aiming);
+		CombatComponent->SetAiming(true);
+
+		//GEngine->AddOnScreenDebugMessage(-1,5.f,FColor::Red,TEXT("Gate1Open Fun"));
+		GEngine->AddOnScreenDebugMessage(-1,5.f,FColor::Red,FString::Printf(TEXT("SetBoolRef: %hhd"),SetBoolRef));
+	}
+}
+
+void AALSBaseCharacter::adsCameraDelay()
+{
+	ADSCamera();
+}
+
+void AALSBaseCharacter::ADSCamera()
+{
+	Cast<AALSPlayerController>(GetController())->SetViewTargetWithBlend(CombatComponent->EquippedWeapon,0,VTBlend_EaseIn);
+}
+
+void AALSBaseCharacter::RevertCamera()
+{
+	Cast<AALSPlayerController>(GetController())->SetViewTargetWithBlend(UGameplayStatics::GetPlayerCharacter(GetWorld(),0),0,VTBlend_EaseOut);
+}
+
+

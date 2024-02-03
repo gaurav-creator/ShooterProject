@@ -128,7 +128,7 @@ bool AALSPlayerCameraManager::CustomCameraBehavior(float DeltaTime, FVector& Loc
 	// Step 1: Get Camera Parameters from CharacterBP via the Camera Interface
 	const FTransform& PivotTarget = ControlledCharacter->GetThirdPersonPivotTarget();
 	const FVector& FPTarget = ControlledCharacter->GetFirstPersonCameraTarget();
-	const FVector& ADS = ControlledCharacter->GetFirstPersonCameraTargetADS();
+	//const FVector& ADS = ControlledCharacter->GetFirstPersonCameraTargetADS();
 	float TPFOV = 90.0f;
 	float FPFOV = 90.0f;
 	bool bRightShoulder = false;
@@ -219,12 +219,12 @@ bool AALSPlayerCameraManager::CustomCameraBehavior(float DeltaTime, FVector& Loc
 	// Step 8: Lerp First Person Override and return target camera parameters.
 	FTransform TargetCameraTransform(TargetCameraRotation, TargetCameraLocation, FVector::OneVector);
 	FTransform FPTargetCameraTransform(TargetCameraRotation, FPTarget, FVector::OneVector);
-	FTransform FPTargetCameraADSTransform(TargetCameraRotation, ADS, FVector::OneVector);
+	//FTransform FPTargetCameraADSTransform(TargetCameraRotation, ADS, FVector::OneVector);
 
-	const FTransform& MixedTransformADS = UKismetMathLibrary::TLerp(FPTargetCameraTransform, FPTargetCameraADSTransform,
-																GetCameraBehaviorParam(NAME_Weight_ADS));
+	/*const FTransform& MixedTransformADS = UKismetMathLibrary::TLerp(FPTargetCameraTransform, FPTargetCameraADSTransform,
+																GetCameraBehaviorParam(NAME_Weight_ADS));*/
 
-	const FTransform& MixedTransform = UKismetMathLibrary::TLerp(TargetCameraTransform, MixedTransformADS,
+	const FTransform& MixedTransform = UKismetMathLibrary::TLerp(TargetCameraTransform, FPTargetCameraTransform,
 	                                                             GetCameraBehaviorParam(
 		                                                             NAME_Weight_FirstPerson));
 
